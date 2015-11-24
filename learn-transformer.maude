@@ -248,9 +248,10 @@ mod toHTML is
 
 	op createLinks : Module LOSet -> String .
 	eq createLinks(module, mtset) = "" .
-	---eq createLinks(module, lo(S) LOS) = "if(last != '" + S + "' && contained(pred('" + S + "'))) linkList += '<br><a href=\"#\" onclick=\"" + S + "();return false\">" + downTerm(getTerm(metaReduce(module, 'title['lo[upTerm(S)]])), error) + "</a>';\n" + createLinks(module, LOS) .
-	eq createLinks(module, lo(S) LOS) = "if(contained(pred('" + S + "'))) linkList += '<br><a href=\"#\" onclick=\"" + S + "();return false\">" + downTerm(getTerm(metaReduce(module, 'title['lo[upTerm(S)]])), error) + "</a>';\n" + createLinks(module, LOS) .
-	
+	eq createLinks(module, lo(S) LOS) = "if(last != '" + S + "' && contained(pred('" + S + "'))) linkList += '<br><a href=\"#\" onclick=\"" + S + "();return false\">" + downTerm(getTerm(metaReduce(module, 'title['lo[upTerm(S)]])), error) + "</a>';\n" + createLinks(module, LOS) .
+	--- creates an extra link to the current LO:
+	---eq createLinks(module, lo(S) LOS) = "if(contained(pred('" + S + "'))) linkList += '<br><a href=\"#\" onclick=\"" + S + "();return false\">" + downTerm(getTerm(metaReduce(module, 'title['lo[upTerm(S)]])), error) + "</a>';\n" + createLinks(module, LOS) .
+
 	op createLOFunctions : Module LOSet -> String .
 	eq createLOFunctions(module, mtset) = "" .
 	eq createLOFunctions(module, lo(S) LOS) = "function " + S + "(){\nlist.push('" + S + "');\nvar prt = '<div style=\"text-align: center;\"><b><big><big>"
