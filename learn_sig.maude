@@ -1,0 +1,57 @@
+fmod LEARN-SIG is
+	pr QID . pr STRING .
+	sorts SetObj CourseDecl ObjSpecs LearnCourse CourseID CourseSpecs ExDecl StrID SetStr TeachStrDecl StrDecl LearnID
+		StrExp LearnObjDecl SetLOAttrib ObjAttrib LearnObjDecls .
+	subsort LearnID < SetObj .
+	subsort String < CourseID .
+	subsort ExDecl TeachStrDecl < CourseSpecs .
+	subsort StrDecl < SetStr .
+ ---	subsort CourseID < LearnID .
+ ---	subsort LearnID < StrExp .
+ 	subsort SetObj < StrExp .
+	subsort ObjAttrib < SetLOAttrib .
+	subsort LearnObjDecl < LearnObjDecls .
+
+	op <_> : Qid -> LearnID .
+
+	--- Course declarations
+	op _,_ : SetObj SetObj -> SetObj [prec 10 assoc comm id: none] .
+	op _ _ : CourseDecl LearnObjDecls -> LearnCourse [prec 70] .
+	op course on_teaches_ : CourseID LearnID -> CourseDecl [prec 50] .
+	op course on_teaches_and_ : CourseID SetObj LearnID -> CourseDecl [prec 50] .
+	op course on_teaches_with_ : CourseID LearnID CourseSpecs -> CourseDecl [prec 50] .
+	op course on_teaches_and_with_ : CourseID SetObj LearnID CourseSpecs -> CourseDecl [prec 50] .
+	op none : -> LearnID .
+	op none : -> CourseSpecs .
+	op _ _ : CourseSpecs CourseSpecs -> CourseSpecs [prec 30 assoc comm id: none] .
+
+	--- Exercise declarations
+	op exercise_ : LearnID -> ExDecl .
+	op exercises_and_ : SetObj LearnID -> ExDecl [prec 20] .
+
+	--- Strategy declarations
+	op teaching strategy_ _ : LearnID SetStr -> TeachStrDecl [prec 20] .
+	op _,_ : SetStr SetStr -> SetStr [prec 10 assoc comm] .
+	op _before_ : StrExp StrExp -> StrDecl [prec 5] .
+	op _after_ : StrExp StrExp -> StrDecl [prec 5] .
+	ops exercises the`exercises all : -> StrExp .
+	op _-_ : StrExp StrExp -> StrExp [prec 3] .
+	op _but_ : StrExp StrExp -> StrExp [prec 3] .
+
+	--- Learning object declarations
+	op learning object_has title_ : LearnID String -> LearnObjDecl [prec 50] .
+	op learning object_has title__ : LearnID String SetLOAttrib -> LearnObjDecl [prec 50] .
+	op text_ : String -> ObjAttrib [prec 20] .
+	op image_ : String -> ObjAttrib [prec 20] .
+	op __ : SetLOAttrib SetLOAttrib -> SetLOAttrib [prec 30 assoc comm] .
+	op __ : LearnObjDecls LearnObjDecls -> LearnObjDecls [prec 60 assoc comm] .
+
+	var S : CourseID . vars O O1 O2 : LearnID . var LO : SetObj . vars SE1 SE2 : StrExp . var CS : CourseSpecs .
+
+	eq course on S teaches O = course on S teaches O and none with none .
+	eq course on S teaches LO and O = course on S teaches LO and O with none .
+	eq course on S teaches O with CS = course on S teaches O and none with CS .
+
+	eq the exercises = exercises .
+	eq SE1 but SE2 = SE1 - SE2 .
+endfm

@@ -1,59 +1,4 @@
-fmod LEARN-SIG is
-	pr QID . pr STRING .
-	sorts SetObj CourseDecl ObjSpecs LearnCourse CourseID CourseSpecs ExDecl StrID SetStr TeachStrDecl StrDecl LearnID
-		StrExp LearnObjDecl SetLOAttrib ObjAttrib LearnObjDecls .
-	subsort LearnID < SetObj .
-	subsort String < CourseID .
-	subsort ExDecl TeachStrDecl < CourseSpecs .
-	subsort StrDecl < SetStr .
- ---	subsort CourseID < LearnID .
-	subsort LearnID < StrExp .
-	subsort ObjAttrib < SetLOAttrib .
-	subsort LearnObjDecl < LearnObjDecls .
-
-	op <_> : Qid -> LearnID .
-
-	--- Course declarations
-	op _,_ : SetObj SetObj -> SetObj [prec 10 assoc comm id: none] .
-	op _ _ : CourseDecl LearnObjDecls -> LearnCourse [prec 70] .
-	op course on_teaches_ : CourseID LearnID -> CourseDecl [prec 50] .
-	op course on_teaches_and_ : CourseID SetObj LearnID -> CourseDecl [prec 50] .
-	op course on_teaches_with_ : CourseID LearnID CourseSpecs -> CourseDecl [prec 50] .
-	op course on_teaches_and_with_ : CourseID SetObj LearnID CourseSpecs -> CourseDecl [prec 50] .
-	op none : -> LearnID .
-	op none : -> CourseSpecs .
-	op _ _ : CourseSpecs CourseSpecs -> CourseSpecs [prec 30 assoc comm id: none] .
-
-	--- Exercise declarations
-	op exercise_ : LearnID -> ExDecl .
-	op exercises_and_ : SetObj LearnID -> ExDecl [prec 20] .
-
-	--- Strategy declarations
-	op teaching strategy_ _ : LearnID SetStr -> TeachStrDecl [prec 20] .
-	op _,_ : SetStr SetStr -> SetStr [prec 10 assoc comm] .
-	op _before_ : StrExp StrExp -> StrDecl [prec 5] .
-	op _after_ : StrExp StrExp -> StrDecl [prec 5] .
-	ops exercises the`exercises all : -> StrExp .
-	op _-_ : StrExp StrExp -> StrExp [prec 3] .
-	op _but_ : StrExp StrExp -> StrExp [prec 3] .
-
-	--- Learning object declarations
-	op learning object_has title_ : LearnID String -> LearnObjDecl [prec 50] .
-	op learning object_has title__ : LearnID String SetLOAttrib -> LearnObjDecl [prec 50] .
-	op text_ : String -> ObjAttrib [prec 20] .
-	op image_ : String -> ObjAttrib [prec 20] .
-	op __ : SetLOAttrib SetLOAttrib -> SetLOAttrib [prec 30 assoc comm] .
-	op __ : LearnObjDecls LearnObjDecls -> LearnObjDecls [prec 60 assoc comm] .
-
-	var S : CourseID . vars O O1 O2 : LearnID . var LO : SetObj . vars SE1 SE2 : StrExp . var CS : CourseSpecs .
-
-	eq course on S teaches O = course on S teaches O and none with none .
-	eq course on S teaches LO and O = course on S teaches LO and O with none .
-	eq course on S teaches O with CS = course on S teaches O and none with CS .
-
-	eq the exercises = exercises .
-	eq SE1 but SE2 = SE1 - SE2 .
-endfm
+load learn_sig.maude
 
 fmod LEARN is
 	pr NAT . pr STRING . pr FLOAT . pr QID .
@@ -222,7 +167,7 @@ mod toHTML is
 	op convertHTML : SModule -> String .
 	eq convertHTML(module) = "<html>\n<head>\n<title>" + string(getName(module)) + "</title>\n<script type=\"text/javascript\">\n"
 							+ "var list = []; var strategy;\nfunction contained(set){\nfor (var i = 0; i < set.length; i++)\nif(list.lastIndexOf(set[i]) == -1) return false;\nreturn true;\n}\n"
-							+ "function init(str){\nstrategy = str;\ndocument.body.innerHTML = '<center><b><big><big>" + string(getName(module)) + "</big></big></b></center><br>' + links('');\n}\n"
+							+ "function init(str){\nstrategy = str;\nvar aux = window.localStorage.getItem('learn_list_'+strategy);\nif(aux)\nlist = JSON.parse(aux);\ndocument.body.innerHTML = '<center><b><big><big>" + string(getName(module)) + "</big></big></b></center><br>' + links('');\n}\n"
 							+ "function pred(lo){\n" + convertPredEqs(module, getEqs(module)) + "return [];\n}\n"
 							+ "function links(last){\nvar linkList = \"\";\n" + createLinks(module, downTerm(getTerm(metaReduce(module, 'all.LOSet)), error)) + "return linkList;\n}\n"
 							+ createLOFunctions(module, downTerm(getTerm(metaReduce(module, 'all.LOSet)), error))
@@ -254,7 +199,7 @@ mod toHTML is
 
 	op createLOFunctions : Module LOSet -> String .
 	eq createLOFunctions(module, mtset) = "" .
-	eq createLOFunctions(module, lo(S) LOS) = "function " + S + "(){\nlist.push('" + S + "');\nvar prt = '<div style=\"text-align: center;\"><b><big><big>"
+	eq createLOFunctions(module, lo(S) LOS) = "function " + S + "(){\nlist.push('" + S + "');\nwindow.localStorage.setItem('learn_list_'+strategy, JSON.stringify(list));\nvar prt = '<div style=\"text-align: center;\"><b><big><big>"
 											+ downTerm(getTerm(metaReduce(module, 'title['lo[upTerm(S)]])), error) + "</big></big></b></div><br>"
 											+ insertImg(module, lo(S)) + insertTxt(module, lo(S)) + "';\nprt += links('" + S + "');\ndocument.body.innerHTML = prt;\n}\n"
 											+ createLOFunctions(module, LOS)
@@ -308,123 +253,4 @@ mod CMD is
 
 	op html : LearnCourse -> String .
 	eq html(LC) = convertHTML(transform(LC)) .
-endm
-
-mod TEST is
-	pr CMD .
-	ops eg1 eg2 eg3 : -> LearnCourse .
-	eq eg1 =
-		course on "Linguagens Formais"
-			teaches < 'int3 >, < 'sec3_2 >, < 'sec3_1 >, < 'fig3_2 >, < 'ex3_1 > and < 'ex3_2 >
-		learning object < 'int3 > has
-			title "Introducao ao Capitulo 3"
-			image "auto.png"
-			text "O estudo das linguagens regulares..."
-		learning object < 'sec3_2 > has
-			title "Secao 3.2"
-			text "A construcao de um sistema e, em geral..."
-		learning object < 'sec3_1 > has
-			title "Secao 3.1"
-			text "Um sistema de estados finitos e um modelo matematico..."
-		learning object < 'fig3_2 > has
-			title "Figura 3.2"
-			image "figura3.2.png"
-			text "Diagrama (AFD): transicao"
-		learning object < 'ex3_1 > has
-			title "Exercicio 3.1"
-			text "Sobre as linguagens regulares:..."
-		learning object < 'ex3_2 > has
-			title "Exercicio 3.2"
-			text "Desenvolva automatos finitos deterministicos..."
-	.
-	eq eg2 =
-		course on "Linguagens Formais"
-			teaches < 'int3 >, < 'sec3_2 >, < 'sec3_1 >, < 'fig3_2 >, < 'ex3_1 > and < 'ex3_2 >
-		with
-			exercises < 'ex3_1 > and < 'ex3_2 >
-			teaching strategy < 'ex >
-				exercises after all but the exercises
-		learning object < 'int3 > has
-			title "Introducao ao Capitulo 3"
-			image "auto.png"
-			text "O estudo das linguagens regulares..."
-		learning object < 'sec3_2 > has
-			title "Secao 3.2"
-			text "A construcao de um sistema e, em geral..."
-		learning object < 'sec3_1 > has
-			title "Secao 3.1"
-			text "Um sistema de estados finitos e um modelo matematico..."
-		learning object < 'fig3_2 > has
-			title "Figura 3.2"
-			image "figura3.2.png"
-			text "Diagrama (AFD): transicao"
-		learning object < 'ex3_1 > has
-			title "Exercicio 3.1"
-			text "Sobre as linguagens regulares:..."
-		learning object < 'ex3_2 > has
-			title "Exercicio 3.2"
-			text "Desenvolva automatos finitos deterministicos..."
-	.
-	eq eg3 =
-		course on "Linguagens Formais"
-			teaches < 'sec2_1 >, < 'sec2_2 >, < 'sec2_4 >, < 'int3 >, < 'sec3_1 >, < 'sec3_2 >, < 'sec3_3 >, < 'fig3_2 >, < 'sec3_7 >, < 'ex3_1 > and < 'ex3_2 >
-		with
-			teaching strategy < 'class >
-				< 'int3 > before < 'sec3_1 >,
-				< 'sec3_1 > before < 'sec3_2 >,
-				< 'sec3_2 > before < 'fig3_2 >,
-				< 'fig3_2 > before < 'sec2_1 >,
-				< 'sec2_1 > before < 'sec2_2 >,
-				< 'sec2_2 > before < 'sec3_3 >,
-				< 'sec3_3 > before < 'sec2_4 >,
-				< 'sec2_4 > before < 'sec3_7 >,
-				< 'sec3_7 > before < 'ex3_1 >,
-				< 'ex3_1 > before < 'ex3_2 >
-			teaching strategy < 'book >
-				< 'sec2_1 > before < 'sec2_2 >,
-				< 'sec2_2 > before < 'sec2_4 >,
-				< 'sec2_4 > before < 'int3 >,
-				< 'int3 > before < 'sec3_1 >,
-				< 'sec3_1 > before < 'sec3_2 >,
-				< 'sec3_2 > before < 'sec3_3 >,
-				< 'sec3_3 > before < 'fig3_2 >,
-				< 'fig3_2 > before < 'sec3_7 >,
-				< 'sec3_7 > before < 'ex3_1 >,
-				< 'ex3_1 > before < 'ex3_2 >
-		learning object < 'int3 > has
-			title "Introducao ao Capitulo 3"
-			image "auto.png"
-			text "O estudo das linguagens regulares..."
-		learning object < 'sec2_1 > has
-			title "Secao 2.1"
-			text "alfabeto"
-		learning object < 'sec2_2 > has
-			title "Secao 2.2"
-			text "palavra"
-		learning object < 'sec2_4 > has
-			title "Secao 2.4"
-			text "gramatica"
-		learning object < 'sec3_1 > has
-			title "Secao 3.1"
-			text "Um sistema de estados finitos e um modelo matematico..."
-		learning object < 'sec3_2 > has
-			title "Secao 3.2"
-			text "A construcao de um sistema e, em geral..."
-		learning object < 'sec3_3 > has
-			title "Secao 3.3"
-			text "automato finito..."
-		learning object < 'sec3_7 > has
-			title "Secao 3.7"
-			text "gramatica regular..."
-		learning object < 'fig3_2 > has
-			title "Figura 3.2"
-			image "figura3.2.png"
-			text "Diagrama (AFD): transicao"
-		learning object < 'ex3_1 > has
-			title "Exercicio 3.1"
-			text "Sobre as linguagens regulares:..."
-		learning object < 'ex3_2 > has
-			title "Exercicio 3.2"
-			text "Desenvolva automatos finitos deterministicos..."
-	.
 endm

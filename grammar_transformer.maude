@@ -1,0 +1,236 @@
+load learn_sig.maude
+
+fmod GRAMMAR is
+	inc QID .
+	inc SET*{Qid} .
+	sorts V Word Initial T Strategy .
+	subsort Initial < V < Word .
+	subsort Qid < T < Word .
+	subsort Qid < Strategy .
+	op epsilon : -> Word .
+	op S : Strategy -> Initial .
+	op __ : Word Word -> Word [assoc id: epsilon] .
+	op [_:_:_] : T Set{Qid} Strategy -> V .
+	op tam : Word -> Nat .
+	eq tam(epsilon) = 0 .
+	eq tam(Tmn:T W:Word) = 1 + tam(W:Word) .
+	eq tam(Vb:V W:Word) = 1 + tam(W:Word) .
+endfm
+
+fmod IM-GRAMMAR is
+	inc GRAMMAR .
+	sort Sort .
+	subsort Qid < Sort .
+endfm
+
+fmod PARTIAL-ORDER is
+	inc QID .
+	sort PartialOrder .
+	op `(_,_`) : Qid Qid -> PartialOrder .
+endfm
+
+view PartialOrder from TRIV to PARTIAL-ORDER is
+	sort Elt to PartialOrder .
+endv
+
+mod GRAMMAR_TRANSFORM is
+	inc NAT .
+	inc META-LEVEL * (op insert to EXinsert, op delete to EXdelete, op _in_ to _EXin_, op |_| to EX|_|, op $card to EX$card, op union to EXunion, op intersection to EXintersection, op $intersect to EX$intersect, op _\_ to _EX\_, op $diff to EX$diff, op _subset_ to _EXsubset_, op _psubset_ to _EXpsubset_, op _`,_ to _>_, op __ to _§_, op _;_ to _~_) .
+	inc LEARN-SIG .
+	inc SET*{Qid} . ---
+	inc SET*{PartialOrder} .
+
+	var Cid : CourseID . var SObj ExObj : SetObj . vars Lid : LearnID . var LOdecls : LearnObjDecls . vars CS CS' : CourseSpecs . var SStr : SetStr . var StSet : Set{PartialOrder} . vars LO StrID Q Q1 Q2 : Qid . vars exp1 exp2 : StrExp . var SQ Choices : Set{Qid} .
+
+	op qid : LearnID -> Qid .
+	eq qid(< Q:Qid >) = Q:Qid .
+
+	op set : SetObj -> Set{Qid} .
+	eq set(none) = {} .
+	eq set(Lid, SObj) = union(set(SObj), {qid(Lid)}) .
+
+	op strSet : SetStr SetObj SetObj -> Set{PartialOrder} .
+	eq strSet(exp1 before exp2, SObj, ExObj) = cartesian(redStr(exp1, SObj, ExObj), redStr(exp2, SObj, ExObj)) .
+	eq strSet(exp1 after exp2, SObj, ExObj) = cartesian(redStr(exp2, SObj, ExObj), redStr(exp1, SObj, ExObj)) .
+	eq strSet((exp1 before exp2, SStr), SObj, ExObj) = union(strSet(SStr, SObj, ExObj), cartesian(redStr(exp1, SObj, ExObj), redStr(exp2, SObj, ExObj))) .
+	eq strSet((exp1 after exp2, SStr), SObj, ExObj) = union(strSet(SStr, SObj, ExObj), cartesian(redStr(exp2, SObj, ExObj), redStr(exp1, SObj, ExObj))) .
+
+	op redStr : StrExp SetObj SetObj -> Set{Qid} .
+	eq redStr(all, SObj, ExObj) = set(SObj) .
+	eq redStr(exercises, SObj, ExObj) = set(ExObj) .
+	eq redStr(Lid, SObj, ExObj) = {qid(Lid)} .
+	eq redStr(exp1 - exp2, SObj, ExObj) = redStr(exp1, SObj, ExObj) \ redStr(exp2, SObj, ExObj) .
+	***(eq red(none) = {} .
+	eq red(Lid, SObj) = union(red(SObj), qid(Lid)) . --- Para o caso onde possa-se definir SetObj nas estratégias)
+
+	op cartesian : Set{Qid} Set{Qid} -> Set{PartialOrder} .
+	eq cartesian({}, SQ:Set{Qid}) = {} .
+	eq cartesian(SQ:Set{Qid}, {}) = {} .
+	eq cartesian({Q1}, {Q2}) = {(Q1, Q2)} .
+	eq cartesian({Q1}, {Q2, PS:PreSet{Qid}}) = union(cartesian({Q1}, {PS:PreSet{Qid}}), cartesian({Q1}, {Q2})) .
+	eq cartesian({Q1, PS:PreSet{Qid}}, SQ:Set{Qid}) = union(cartesian({PS:PreSet{Qid}}, SQ:Set{Qid}), cartesian({Q1}, SQ:Set{Qid})) .
+
+	op predSet : Set{PartialOrder} -> Set{Qid} .
+	eq predSet({}) = {} .
+	eq predSet({(Q1,Q2)}) = {Q1} .
+	eq predSet({(Q1,Q2), PS:PreSet{PartialOrder}}) = union(predSet({PS:PreSet{PartialOrder}}), {Q1}) .
+
+	op sucSet : Set{PartialOrder} -> Set{Qid} .
+	eq sucSet({}) = {} .
+	eq sucSet({(Q1, Q2)}) = {Q2} .
+	eq sucSet({(Q1,Q2), PS:PreSet{PartialOrder}}) = union(sucSet({PS:PreSet{PartialOrder}}), {Q2}) .
+
+	op pred : Qid Set{PartialOrder} -> Set{Qid} .
+	eq pred(Q:Qid, {}) = {} .
+	eq pred(Q:Qid, {(Q1:Qid,Q2:Qid)}) = if Q:Qid == Q2:Qid then {Q1:Qid} else {} fi .
+	eq pred(Q:Qid, {(Q1:Qid,Q2:Qid), PS:PreSet{PartialOrder}}) = if Q:Qid == Q2:Qid then union(pred(Q:Qid, {PS:PreSet{PartialOrder}}), {Q1:Qid}) else union(pred(Q:Qid, {PS:PreSet{PartialOrder}}), {}) fi .
+
+	op unionIfPred : Qid Set{Qid} Set{PartialOrder} -> Set{Qid} .
+	eq unionIfPred(Q, SQ, StSet) = if Q in predSet(StSet) then union(SQ, {Q}) else SQ fi .
+
+	op transform-in-grammar : LearnCourse -> SModule .
+	eq transform-in-grammar(course on Cid teaches SObj and Lid with CS LOdecls) =
+		mod qid(Cid) is
+			(including 'BOOL . § including 'IM-GRAMMAR .)
+			sorts none .
+			none --- subsort declarations
+			---op declarations:generateOps(SObj, Lid, CS)
+			none
+			none --- membership axioms
+			none --- equations
+			--- rules:
+			generateRls((SObj, Lid), CS)
+		endm
+	.
+
+ ***(
+	op generateOps : SetObj CourseSpecs -> OpDeclSet .
+	eq generateOps(SObj, CS) = genTerminals(SObj) . --- genNonTerminals(CS) .
+	op genTerminals : SetObj -> OpDeclSet .
+	eq genTerminals(none) = none .
+ ---eq genTerminals(Lid) = (op q(Lid) : nil -> 'T [none] .) .
+	eq genTerminals(Lid , SObj) = (op qid(Lid) : nil -> 'T [none] .) § genTerminals(SObj) .
+ )
+	op generateRls : SetObj CourseSpecs -> RuleSet .
+	---eq generateRls(SObj, none) = none .
+	eq generateRls(SObj, CS exercise Lid CS') = verifyDefaultStr(SObj, Lid, CS CS') .
+	eq generateRls(SObj, CS exercises ExObj and Lid CS') = verifyDefaultStr(SObj, (ExObj, Lid), CS CS') .
+	eq generateRls(SObj, CS) = verifyDefaultStr(SObj, none, CS) [owise] .
+
+	op verifyDefaultStr : SetObj SetObj CourseSpecs -> RuleSet .
+	eq verifyDefaultStr(SObj, ExObj, none) = (rl 'S[upTerm('default)] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj), 'default, {}) § genStrRls(set(SObj), set(SObj), 'default, {}) .
+	eq verifyDefaultStr(SObj, ExObj, CS) = generateRlsEX(SObj, ExObj, CS) [owise] .
+
+	op generateRlsEX : SetObj SetObj CourseSpecs -> RuleSet .
+	eq generateRlsEX(SObj, ExObj, CS teaching strategy Lid SStr CS') = (rl 'S[upTerm(qid(Lid))] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj) \ sucSet(strSet(SStr, SObj, ExObj)), qid(Lid), strSet(SStr, SObj, ExObj)) § genStrRls(set(SObj), set(SObj), qid(Lid), strSet(SStr, SObj, ExObj)) § generateRlsEX(SObj, ExObj, CS CS') .
+	eq generateRlsEX(SObj, ExObj, CS) = none [owise] .
+
+	op genStrRls : Set{Qid} Set{Qid} Qid Set{PartialOrder} -> RuleSet .
+	eq genStrRls({}, Choices, StrID, StSet) = none .
+	eq genStrRls({Q}, Choices, StrID, StSet) = genLOStrRls(Q, 2^(predSet(StSet)), Choices, StrID, StSet) .
+	eq genStrRls({Q, PS:PreSet{Qid}}, Choices, StrID, StSet) = genLOStrRls(Q, 2^(predSet(StSet)), Choices, StrID, StSet) § genStrRls({PS:PreSet{Qid}}, Choices, StrID, StSet) .
+
+	op genLOStrRls : Qid Set{Qid} Set{Qid} Qid Set{PartialOrder} -> RuleSet .
+	eq genLOStrRls(LO, {}, Choices, StrID, StSet) = none .
+	eq genLOStrRls(LO, {SQ}, Choices, StrID, StSet) = genLOStSetStrRls(LO, SQ, Choices, StrID, StSet) .
+	eq genLOStrRls(LO, {SQ, PS:PreSet{Qid}}, Choices, StrID, StSet) = genLOStSetStrRls(LO, SQ, Choices, StrID, StSet) § genLOStrRls(LO, {PS:PreSet{Qid}}, Choices, StrID, StSet) .
+
+	op genLOStSetStrRls : Qid Set{Qid} Set{Qid} Qid Set{PartialOrder} -> RuleSet .
+	eq genLOStSetStrRls(LO, SQ, {}, StrID, StSet) = none .
+	eq genLOStSetStrRls(LO, SQ, {Q}, StrID, StSet) = makeRls(LO, SQ, Q, StrID, StSet) .
+	eq genLOStSetStrRls(LO, SQ, {Q, PS:PreSet{Qid}}, StrID, StSet) = makeRls(LO, SQ, Q, StrID, StSet) § genLOStSetStrRls(LO, SQ, {PS:PreSet{Qid}}, StrID, StSet) .
+
+	op makeRls : Qid Set{Qid} Qid Qid Set{PartialOrder} -> RuleSet .
+	ceq makeRls(LO, SQ, Q, StrID, StSet) = (rl '`[_:_:_`][upTerm(LO) > upTerm(unionIfPred(LO, SQ, StSet)) > upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, unionIfPred(Q, unionIfPred(LO, SQ, StSet), StSet), StSet)) > upTerm(StrID)])] [none] . § rl '`[_:_:_`][upTerm(LO) > upTerm(unionIfPred(LO, SQ, StSet)) > upTerm(StrID)] => upTerm(Q) [none] .) if LO =/= Q /\ pred(LO, StSet) subset SQ /\ pred(Q, StSet) subset unionIfPred(LO, SQ, StSet) .
+	eq makeRls(LO, SQ, Q, StrID, StSet) = none [owise] .
+
+	op makeInitialRls : Set{Qid} Qid Set{PartialOrder} -> RuleSet .
+	eq makeInitialRls({}, StrID, StSet) = none .
+	eq makeInitialRls({Q}, StrID, StSet) = (rl 'S[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S[upTerm(StrID)] => upTerm(Q) [none] .) .
+	eq makeInitialRls({Q, PS:PreSet{Qid}}, StrID, StSet) = (rl 'S[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S[upTerm(StrID)] => upTerm(Q) [none] .) § makeInitialRls({PS:PreSet{Qid}}, StrID, StSet) .
+endm
+
+fmod GRAMMAR-SIG is
+	inc GRAMMAR .
+	sorts Production ProductionSet .
+	subsort Production < ProductionSet .
+	subsort Qid < V .
+	---op _ : Qid -> V .
+	op _->_ : Word Word -> Production .
+	op none : -> ProductionSet .
+	op __ : ProductionSet ProductionSet -> ProductionSet [assoc comm id: none format (d n d)] .
+endfm
+
+view NonTerminal from TRIV to GRAMMAR is
+	sort Elt to V .
+endv
+
+mod CMD is
+	inc GRAMMAR .
+	inc GRAMMAR-SIG .
+	inc GRAMMAR_TRANSFORM .
+	inc MAP{NonTerminal,Qid} .
+	inc CONVERSION .
+
+	var LC : LearnCourse . var M : Module . vars Q Str : Qid . var N : Nat . vars T T' T1 T2 : Term . var RS : RuleSet . var MP : Map{NonTerminal,Qid} . var SORT : Sort . var Wd : Word .
+
+	op error : -> [Word] .
+	op qEr : -> [Qid] .
+
+	op genWord : LearnCourse Qid Nat -> Word .
+	op genWord : Module Qid Nat -> Word .
+	eq genWord(LC, Str, N) = downTerm(getTerm(metaSearch(transform-in-grammar(LC), 'S[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
+	eq genWord(M, Str, N) = downTerm(getTerm(metaSearch(M, 'S[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
+
+	op getGrammar : LearnCourse Qid -> ProductionSet .
+	op getGrammar : Module Qid -> ProductionSet .
+	eq getGrammar(LC, Str) = $grammar(getRls(transform-in-grammar(LC))).
+	eq getGrammar(M, Str) = $grammar(getRls(M)).
+
+	op getLabeledGrammar : LearnCourse Qid -> ProductionSet .
+	op getLabeledGrammar : Module Qid -> ProductionSet .
+	eq getLabeledGrammar(LC, Str) = $labeledGrammar(getRls(transform-in-grammar(LC)), Str, empty, 0).
+	eq getLabeledGrammar(M, Str) = $labeledGrammar(getRls(M), Str, empty, 0).
+
+	op hasWord : LearnCourse Qid Word -> Bool .
+	op hasWord : Module Qid Word -> Bool .
+	eq hasWord(LC, Str, Wd) = metaSearch(transform-in-grammar(LC), 'S[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
+	eq hasWord(M, Str, Wd) = metaSearch(M, 'S[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
+
+	op $grammar : RuleSet -> ProductionSet .
+	eq $grammar(none) = none .
+	eq $grammar((rl T1 => T2 [none] .) § RS) = (downTerm(T1, error) -> downTerm(T2, error)) $grammar(RS) .
+
+	op $labeledGrammar : RuleSet Qid Map{NonTerminal,Qid} Nat -> ProductionSet .
+	eq $labeledGrammar(none, Str, MP, N) = none .
+	eq $labeledGrammar((rl T1 => T2 [none] .) § RS, Str, MP, N) = $red1(Str, T1, T2, MP, N, RS) .
+
+	op $red1 : Qid Term Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
+	ceq $red1(Str, 'S[Q], T2, MP, N, RS) = $red2(Str, 'S, T2, MP, N, RS) if Q == upTerm(Str).
+	ceq $red1(Str, T1, T2, MP, N, RS) = if $hasMapping(MP, downTerm(T1, error)) then $red2(Str, MP[ downTerm(T1, error)], T2, MP, N, RS) else $red2(Str, qid("v" + string(N, 10)), T2, insert(downTerm(T1, error), qid("v" + string(N,10)),MP), N + 1, RS) fi if $strTerm(T1) == Str .
+	eq $red1(Str, T1, T2, MP, N, RS) = $labeledGrammar(RS, Str, MP, N) [owise] .
+
+	op $red2 : Qid Word Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
+	eq $red2(Str, Wd, Q, MP, N, RS) = (Wd -> downTerm(Q, qEr)) $labeledGrammar(RS, Str, MP, N) .
+	eq $red2(Str, Wd, '__[Q > T2], MP, N, RS) = if $hasMapping(MP, downTerm(T2, error)) then (Wd -> downTerm(Q, qEr) MP[downTerm(T2, error)]) $labeledGrammar(RS, Str, MP, N) else (Wd -> downTerm(Q, qEr) qid("v" + string(N,10))) $labeledGrammar(RS, Str, insert(downTerm(T2, error),qid("v" + string(N,10)),MP), N + 1) fi .
+	eq $red2(Str, Wd, T2, MP, N, RS) = $labeledGrammar(RS, Str, MP, N) [owise] .
+
+	op $strTerm : Term -> Qid .
+	eq $strTerm('`[_:_:_`][T1 > T2 > Q]) = downTerm(Q, qEr) .
+
+ ***(op $reduce : Term Map{NonTerminal,Qid} Nat -> Word .
+	eq $reduce('S[SORT], MP, N) = 'S .
+	eq reduce('SORT, MP, N) = downTerm(SORT:Sort, qEr) .
+	eq $reduce('__[SORT > T], MP, N) = downTerm(SORT:Sort, qEr) (T) .
+	eq $reduce(T, MP, N) = if $hasMapping(MP, downTerm(T, error)) then MP[downTerm(T, error)] else insert(downTerm(T, error),qid("v" + string(N,10)),MP)[downTerm(T, error)] fi () [owise] .
+	----------------------
+	op $red1 : Qid Term Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
+	ceq $red1(Str, 'S[Q], T2, MP, N, RS) = $red2(Str, 'S, T2, MP, N, RS) if Q == upTerm(Str).
+	eq $red1(Str, '`[_:_:_`][T > T1 > upTerm(Str)], T2, MP, N, RS) = if $hasMapping(MP, downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error)) then $red2(Str, / MP[ downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error)] /, T2, MP, N, RS) else $red2(Str, / qid("v" + string(N, 10)) /, T2, insert(downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error),qid("v" + string(N,10)),MP), N + 1, RS) fi .
+	eq $red1(Str, T1, T2, MP, N, RS) = $grammar(RS, Str, MP, N) [owise] .
+
+	op $red2 : Qid Word Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
+	eq $red2(Str, Wd, Q, MP, N, RS) = (Wd -> downTerm(Q, qEr)) $grammar(RS, Str, MP, N) .
+	eq $red2(Str, Wd, '__[Q > ('`[_:_:_`][T > T2 > upTerm(Str)])], MP, N, RS) = if $hasMapping(MP, downTerm('`[_:_:_`][T > T2 > upTerm(Str)], error)) then (Wd -> downTerm(Q, qEr) / MP[downTerm('`[_:_:_`][T > T2 > upTerm(Str)], error)] /) $grammar(RS, Str, MP, N) else (Wd -> downTerm(Q, qEr) / qid("v" + string(N,10)) /) $grammar(RS, Str, insert(downTerm('`[_:_:_`][T > T2 > upTerm(Str)], error),qid("v" + string(N,10)),MP), N + 1) fi .
+	eq $red2(Str, Wd, T2, MP, N, RS) = $grammar(RS, Str, MP, N) [owise] .)
+endm
