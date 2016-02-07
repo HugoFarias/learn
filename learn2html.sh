@@ -8,7 +8,7 @@
 SOURCE=$(cat "$1")
 OUT="${2/\~/$HOME}"
 
-MAUDE_OUT="$(echo -e "red html("$SOURCE") ." | maude learn-transformer.maude -no-banner -no-advise)"
+MAUDE_OUT="$(echo -e "red html("$SOURCE") ." | maude theory_transformer.maude -no-banner -no-advise)"
 #MAUDE_OUT=${MAUDE_OUT//\`/ } #swap ` to blank spaces
 MAUDE_OUT="${MAUDE_OUT##*result String: \"}" #remove prefix
 MAUDE_OUT=${MAUDE_OUT%\"*} #remove sufix
