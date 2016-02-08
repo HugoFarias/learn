@@ -8,7 +8,7 @@ fmod GRAMMAR is
 	subsort Qid < T < Word .
 	subsort Qid < Strategy .
 	op epsilon : -> Word .
-	op S : Strategy -> Initial .
+	op S- : Strategy -> Initial .
 	op __ : Word Word -> Word [assoc id: epsilon] .
 	op [_:_:_] : T Set{Qid} Strategy -> V .
 	op tam : Word -> Nat .
@@ -118,11 +118,11 @@ mod GRAMMAR_TRANSFORM is
 	eq generateRls(SObj, CS) = verifyDefaultStr(SObj, none, CS) [owise] .
 
 	op verifyDefaultStr : SetObj SetObj CourseSpecs -> RuleSet .
-	eq verifyDefaultStr(SObj, ExObj, none) = (rl 'S[upTerm('default)] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj), 'default, {}) § genStrRls(set(SObj), set(SObj), 'default, {}) .
+	eq verifyDefaultStr(SObj, ExObj, none) = (rl 'S-[upTerm('default)] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj), 'default, {}) § genStrRls(set(SObj), set(SObj), 'default, {}) .
 	eq verifyDefaultStr(SObj, ExObj, CS) = generateRlsEX(SObj, ExObj, CS) [owise] .
 
 	op generateRlsEX : SetObj SetObj CourseSpecs -> RuleSet .
-	eq generateRlsEX(SObj, ExObj, CS teaching strategy Lid SStr CS') = (rl 'S[upTerm(qid(Lid))] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj) \ sucSet(strSet(SStr, SObj, ExObj)), qid(Lid), strSet(SStr, SObj, ExObj)) § genStrRls(set(SObj), set(SObj), qid(Lid), strSet(SStr, SObj, ExObj)) § generateRlsEX(SObj, ExObj, CS CS') .
+	eq generateRlsEX(SObj, ExObj, CS teaching strategy Lid SStr CS') = (rl 'S-[upTerm(qid(Lid))] => 'epsilon.Word [none] .) § makeInitialRls(set(SObj) \ sucSet(strSet(SStr, SObj, ExObj)), qid(Lid), strSet(SStr, SObj, ExObj)) § genStrRls(set(SObj), set(SObj), qid(Lid), strSet(SStr, SObj, ExObj)) § generateRlsEX(SObj, ExObj, CS CS') .
 	eq generateRlsEX(SObj, ExObj, CS) = none [owise] .
 
 	op genStrRls : Set{Qid} Set{Qid} Qid Set{PartialOrder} -> RuleSet .
@@ -146,8 +146,8 @@ mod GRAMMAR_TRANSFORM is
 
 	op makeInitialRls : Set{Qid} Qid Set{PartialOrder} -> RuleSet .
 	eq makeInitialRls({}, StrID, StSet) = none .
-	eq makeInitialRls({Q}, StrID, StSet) = (rl 'S[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S[upTerm(StrID)] => upTerm(Q) [none] .) .
-	eq makeInitialRls({Q, PS:PreSet{Qid}}, StrID, StSet) = (rl 'S[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S[upTerm(StrID)] => upTerm(Q) [none] .) § makeInitialRls({PS:PreSet{Qid}}, StrID, StSet) .
+	eq makeInitialRls({Q}, StrID, StSet) = (rl 'S-[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S-[upTerm(StrID)] => upTerm(Q) [none] .) .
+	eq makeInitialRls({Q, PS:PreSet{Qid}}, StrID, StSet) = (rl 'S-[upTerm(StrID)] => '__[upTerm(Q) > ('`[_:_:_`][upTerm(Q) > upTerm(unionIfPred(Q, {}, StSet)) > upTerm(StrID)])] [none] . § rl 'S-[upTerm(StrID)] => upTerm(Q) [none] .) § makeInitialRls({PS:PreSet{Qid}}, StrID, StSet) .
 endm
 
 fmod GRAMMAR-SIG is
@@ -155,7 +155,8 @@ fmod GRAMMAR-SIG is
 	sorts Production ProductionSet .
 	subsort Production < ProductionSet .
 	subsort Qid < V .
-	---op _ : Qid -> V .
+	op S : -> V .
+	op [_,_] : Qid Set{Qid} -> V .
 	op _->_ : Word Word -> Production .
 	op none : -> ProductionSet .
 	op __ : ProductionSet ProductionSet -> ProductionSet [assoc comm id: none format (d n d)] .
@@ -179,13 +180,13 @@ mod CMD is
 
 	op genWord : LearnCourse Qid Nat -> Word .
 	op genWord : Module Qid Nat -> Word .
-	eq genWord(LC, Str, N) = downTerm(getTerm(metaSearch(transform-in-grammar(LC), 'S[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
-	eq genWord(M, Str, N) = downTerm(getTerm(metaSearch(M, 'S[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
+	eq genWord(LC, Str, N) = downTerm(getTerm(metaSearch(transform-in-grammar(LC), 'S-[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
+	eq genWord(M, Str, N) = downTerm(getTerm(metaSearch(M, 'S-[upTerm(Str)], 'W:Word, nil, '!, unbounded, N)), error) .
 
 	op getGrammar : LearnCourse Qid -> ProductionSet .
 	op getGrammar : Module Qid -> ProductionSet .
-	eq getGrammar(LC, Str) = $grammar(getRls(transform-in-grammar(LC))).
-	eq getGrammar(M, Str) = $grammar(getRls(M)).
+	eq getGrammar(LC, Str) = $grammar(getRls(transform-in-grammar(LC)), Str).
+	eq getGrammar(M, Str) = $grammar(getRls(M), Str).
 
 	op getLabeledGrammar : LearnCourse Qid -> ProductionSet .
 	op getLabeledGrammar : Module Qid -> ProductionSet .
@@ -194,19 +195,31 @@ mod CMD is
 
 	op hasWord : LearnCourse Qid Word -> Bool .
 	op hasWord : Module Qid Word -> Bool .
-	eq hasWord(LC, Str, Wd) = metaSearch(transform-in-grammar(LC), 'S[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
-	eq hasWord(M, Str, Wd) = metaSearch(M, 'S[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
+	eq hasWord(LC, Str, Wd) = metaSearch(transform-in-grammar(LC), 'S-[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
+	eq hasWord(M, Str, Wd) = metaSearch(M, 'S-[upTerm(Str)], upTerm(Wd), nil, '!, tam(Wd), 0) =/= (failure).ResultTriple? .
 
-	op $grammar : RuleSet -> ProductionSet .
-	eq $grammar(none) = none .
-	eq $grammar((rl T1 => T2 [none] .) § RS) = (downTerm(T1, error) -> downTerm(T2, error)) $grammar(RS) .
+	op $grammar : RuleSet Qid -> ProductionSet .
+	eq $grammar(none, Str) = none .
+	eq $grammar((rl T1 => T2 [none] .) § RS, Str) = if $termInStr(Str, T1) then ($simplify(downTerm(T1, error)) -> $simplify(downTerm(T2, error))) $grammar(RS, Str) else $grammar(RS, Str) fi .
+
+	op $termInStr : Qid Term -> Bool .
+	eq $termInStr(Str, 'S-[T]) = T == upTerm(Str) .
+	eq $termInStr(Str, '`[_:_:_`][T1 > T2 > T]) = T == upTerm(Str) .
+	---eq $termInStr(Str, T1) = false [owise] .
+
+	op $simplify : Word -> Word .
+	eq $simplify(S-(Str)) = S .
+	eq $simplify(Q) = Q .
+	eq $simplify(epsilon) = epsilon .
+	eq $simplify([Q : SQ:Set{Qid} : Str]) = [Q, SQ:Set{Qid}] .
+	eq $simplify(Q [Q : SQ:Set{Qid} : Str]) = Q $simplify([Q : SQ:Set{Qid} : Str]) .
 
 	op $labeledGrammar : RuleSet Qid Map{NonTerminal,Qid} Nat -> ProductionSet .
 	eq $labeledGrammar(none, Str, MP, N) = none .
 	eq $labeledGrammar((rl T1 => T2 [none] .) § RS, Str, MP, N) = $red1(Str, T1, T2, MP, N, RS) .
 
 	op $red1 : Qid Term Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
-	ceq $red1(Str, 'S[Q], T2, MP, N, RS) = $red2(Str, 'S, T2, MP, N, RS) if Q == upTerm(Str).
+	ceq $red1(Str, 'S-[Q], T2, MP, N, RS) = $red2(Str, S, T2, MP, N, RS) if Q == upTerm(Str).
 	ceq $red1(Str, T1, T2, MP, N, RS) = if $hasMapping(MP, downTerm(T1, error)) then $red2(Str, MP[ downTerm(T1, error)], T2, MP, N, RS) else $red2(Str, qid("v" + string(N, 10)), T2, insert(downTerm(T1, error), qid("v" + string(N,10)),MP), N + 1, RS) fi if $strTerm(T1) == Str .
 	eq $red1(Str, T1, T2, MP, N, RS) = $labeledGrammar(RS, Str, MP, N) [owise] .
 
@@ -219,13 +232,13 @@ mod CMD is
 	eq $strTerm('`[_:_:_`][T1 > T2 > Q]) = downTerm(Q, qEr) .
 
  ***(op $reduce : Term Map{NonTerminal,Qid} Nat -> Word .
-	eq $reduce('S[SORT], MP, N) = 'S .
-	eq reduce('SORT, MP, N) = downTerm(SORT:Sort, qEr) .
+	eq $reduce('S-[SORT], MP, N) = 'S- .
+	eq reduce('S-ORT, MP, N) = downTerm(SORT:Sort, qEr) .
 	eq $reduce('__[SORT > T], MP, N) = downTerm(SORT:Sort, qEr) (T) .
 	eq $reduce(T, MP, N) = if $hasMapping(MP, downTerm(T, error)) then MP[downTerm(T, error)] else insert(downTerm(T, error),qid("v" + string(N,10)),MP)[downTerm(T, error)] fi () [owise] .
 	----------------------
 	op $red1 : Qid Term Term Map{NonTerminal,Qid} Nat RuleSet -> ProductionSet .
-	ceq $red1(Str, 'S[Q], T2, MP, N, RS) = $red2(Str, 'S, T2, MP, N, RS) if Q == upTerm(Str).
+	ceq $red1(Str, 'S-[Q], T2, MP, N, RS) = $red2(Str, 'S-, T2, MP, N, RS) if Q == upTerm(Str).
 	eq $red1(Str, '`[_:_:_`][T > T1 > upTerm(Str)], T2, MP, N, RS) = if $hasMapping(MP, downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error)) then $red2(Str, / MP[ downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error)] /, T2, MP, N, RS) else $red2(Str, / qid("v" + string(N, 10)) /, T2, insert(downTerm('`[_:_:_`][T > T1 > upTerm(Str)], error),qid("v" + string(N,10)),MP), N + 1, RS) fi .
 	eq $red1(Str, T1, T2, MP, N, RS) = $grammar(RS, Str, MP, N) [owise] .
 
