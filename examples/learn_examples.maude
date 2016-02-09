@@ -1,0 +1,32 @@
+mod EXAMPLES is
+	pr CMD .
+	ops noStrategy simpleStrategy complexStrategy : -> LearnCourse .
+	eq noStrategy =
+		course on "TEST"
+			teaches < 'A >, < 'B > and < 'C >
+		learning object < 'A > has title "TEST A"
+		learning object < 'B > has title "TEST B"
+		learning object < 'C > has title "TEST C"
+	.
+	eq simpleStrategy =
+		course on "TEST"
+			teaches < 'A >, < 'B > and < 'C >
+		with
+			teaching strategy < 's >
+				< 'B > before < 'C >
+		learning object < 'A > has title "TEST A"
+		learning object < 'B > has title "TEST B"
+		learning object < 'C > has title "TEST C"
+	.
+	eq complexStrategy =
+		course on "TEST"
+			teaches < 'A >, < 'B > and < 'C >
+		with
+			teaching strategy < 's >
+				< 'B > before < 'C >,
+				< 'A > before < 'C >
+		learning object < 'A > has title "TEST A"
+		learning object < 'B > has title "TEST B"
+		learning object < 'C > has title "TEST C"
+	.
+endm

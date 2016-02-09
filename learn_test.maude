@@ -3,14 +3,14 @@ mod TEST is
 
 	ops eg0 eg1 eg2 eg3 : -> LearnCourse .
 	eq eg0 =
-		course on "Teste"
+		course on "TEST"
 			teaches < 'A >, < 'B > and < 'C >
 		with
 			teaching strategy < 's >
 				< 'B > before < 'C >
-		learning object < 'A > has title "TESTE A"
-		learning object < 'B > has title "TESTE B"
-		learning object < 'C > has title "TESTE C"
+		learning object < 'A > has title "TEST A"
+		learning object < 'B > has title "TEST B"
+		learning object < 'C > has title "TEST C"
 	.
 	eq eg1 =
 		course on "Linguagens Formais"

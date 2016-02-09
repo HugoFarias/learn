@@ -1,0 +1,150 @@
+course on "Linguagens e Gramaticas"
+	teaches < 'intro >, < 'intro_sec2.2 >, < 'def_alfabeto >, < 'eg_alfabeto >, < 'eg_alfabeto_lp >, < 'def_palavra >, < 'def_subpalavra >, < 'eg_palavra >, < 'eg_palavra_lp >, < 'def_concat >, < 'eg_concat >, < 'def_concat_sucessiva >, < 'eg_concat_sucessiva >, < 'def_todas_palavras >, < 'eg_todas_palavras >, < 'def_compr >, < 'def_lf >, < 'eg_lf >, < 'eg_todas_linguagens >, < 'eg_lf_lp >, < 'intro_sec2.4 >, < 'def_gramatica >, < 'def_rel_derivacao >, < 'def_linguagem_gerada >, < 'eg_lg_numeros_naturais >, < 'eg_lg_palavra_duplicada >, < 'def_gramaticas_equivalentes >, < 'ex_2.1 >, < 'ex_2.2 >, < 'ex_2.3 >, < 'ex_2.4 >, < 'ex_2.5 >, < 'ex_2.6 >, < 'ex_2.7 >, < 'ex_2.8 > and < 'ex_2.9 >
+
+learning object < 'intro > has
+	title "Introducao ao Capitulo 2"
+	text "Este capitulo introduz algumas definicoes fundamentais como alfabeto, palavra e linguagem formal. Tambem apresenta a definicao geral de gramatica, essencial para todo o trabalho desenvolvido, e sobre a qual muitos conceitos e resultados de linguagens formais sao construidos.<br><br>O Dicionario Aurelio define linguagem como:<br><br>o uso da palavra articulada ou escrita como meio de expressao e comunicacao entre pessoas<br><br>Entretanto, esta definicao nao e suficientemente precisa para permitir o desenvolvimento matematico de uma teoria baseada em linguagens.<br>De fato, linguagem e um dos conceitos mais fundamentais em computacao e informatica. Entretanto, para definir linguagem e necessario antes introduzir os conceitos de alfabeto e de palavra ou cadeia de caracteres."
+
+learning object < 'intro_sec2.2 > has
+	title "Secao 2.2: Alfabeto"
+	text "As definicoes que seguem sao construidas usando como base a nocao de simbolo ou caractere. Portanto, esta e uma entidade abstrata basica, nao sendo definida formalmente. Letras e digitos sao exemplos de simbolos frequentemente usados."
+
+learning object < 'def_alfabeto > has
+	title "definicao 2.1 - alfabeto"
+	text "Um alfabeto e um conjunto finito de simbolos ou caracteres.<br>Portanto:<br>&emsp;\* um conjunto infinito nao e um alfabeto;<br>&emsp;\* o conjunto vazio e um alfabeto."
+
+learning object < 'eg_alfabeto > has
+	title "exemplo 2.1 - Alfabeto"
+	text "a)Os seguintes conjuntos sao exemplos de alfabetos:<br>{a, b, c}<br>&Oslash; (conjunto vazio)<br>b) Os seguintes conjuntos nao sao exemplos de alfabetos (por que?):<br>N (conjunto dos numeros naturais)<br>{a, b, aa, ab, ba, bb, aaa, ...}"
+
+learning object < 'eg_alfabeto_lp > has
+	title "exemplo 2.2 - Alfabeto: linguagem de programacao"
+	text "O alfabeto de uma linguagem de programacao como Pascal e o conjunto de todos os simbolos usados na construcao de programas, incluindo:<br>&emsp;\* letras;<br> &emsp;\* digitos;<br>&emsp;\* caracteres especiais como \">\", \"/\", etc.;<br>&emsp;\* espaco ou \"branco\".<br><br>Ao longo de todo o texto, e usado, com frequencia, um alfabeto binario (no caso, o alfabeto {a, b}) pois, alem de manter uma perfeita analogia com a representacao interna dos computadores reais (o dominio de valores de um bit e binario), a manipulacao de poucos simbolos simplifica as diversas abordagens desenvolvidas."
+
+learning object < 'def_palavra > has
+	title "definicao 2.2 - Palavra, cadeia de caracteres, sentenca"
+	text "Uma palavra, cadeira de caracteres ou sentenca sobre um alfabeto e uma sequencia finita de simbolos (do alfabeto) justapostos.<br>Portanto, uma cadeia sem simbolos e uma palavra valida, e o simbolo &epsilon; denota a cadeia vazia ou palavra vazia"
+
+learning object < 'def_subpalavra > has
+	title "definicao 2.3 - Prefixo, sufixo, subpalavra"
+	text "Um prefixo (respectivamente, sufixo) de uma palavra e qualquer sequencia inicial (respectivamente, final) de simbolos da palavra.<br>Uma subpalavra de uma palavra e qualquer sequencia de simbolos contiguos da palavra."
+
+learning object < 'eg_palavra > has
+	title "exemplo 2.3 - Palavra, prefixo, sufixo, subpalavra"
+	text "a) abcb e uma palavra sobre o alfabeto {a, b, c}<br>b) Relativamente a palavra abcb, vale que:<br>&emsp;&epsilon;, a, ab, abc, abcb sao todos os prefixos;<br>&emsp;&epsilon;, b, cb, bcb, abcb sao todos os sufixos;<br>c)Qualquer prefixo ou sufixo de uma palavra e uma subpalavra;<br>d) Para a palavra aa, o conjunto de todos os prefixos, de todos os sufixos e de todas as subpalavras e o mesmo:<br>{&epsilon;, a, aa}"
+
+learning object < 'eg_palavra_lp > has
+	title "exemplo 2.4 - Palavra: linguagem de programacao"
+	text "Em uma linguagem de programacao como Pascal, uma palavra e um programa."
+
+learning object < 'def_concat > has
+	title "definicao 2.4 - Concatenacao de palavras"
+	text "A concatenacao de palavras ou simplesmente concatenacao e uma operacao binaria, definida sobre um conjunto de palavras, a qual associa a cada par de palavras uma palavra formada pela justaposicao da primeira com a segunda.<br>Uma concatenacao e denotada pela justaposicao dos simbolos que representam as palavras componentes. A operacao de concatenacao satisfaz as seguintes propriedades (suponha v, w, t palavras quaisquer):<br>a) Associativa. v(w t) = (v w)t<br>b) Elemento neutro.<br>&epsilon; w = w = w &epsilon;<br>Como a concatenacao de palavras e uma operacao associativa, e usual omitir os parenteses. Assim, v(w t) ou (v w)t pode ser denotado simplesmente por v w t."
+
+learning object < 'eg_concat > has
+	title "exemplo 2.5 - Concatenacao de palavras"
+	text "Suponha o alfabeto &Sigma; = {a, b}. Entao, para as palavras v = baaaa e w = bb, vale que<br>vw = baaaabb<br>v&epsilon; = v = baaaa"
+
+learning object < 'def_concat_sucessiva > has
+	title "definicao 2.5 - Concatenacao sucessiva de uma palavra"
+	text "A concatenacao sucessiva de uma palavra (com ela mesma) ou simplesmente concatenacao sucessiva representada na forma de um expoente (suponha w uma palavra):<br>w^n, onde n e o numero de concatenacoes sucessivas<br>e definida indutivamente a partir da operacao de concatenacao binaria, como segue:<br>w^0 = &epsilon;<br>w^n = w w^(n-1), para n > 0"
+
+learning object < 'eg_concat_sucessiva > has
+	title "exemplo 2.6 - Concatenacao sucessiva"
+	text "Sejam w uma palavra e a um simbolo. Entao:<br>&emsp;w^3 = w w w<br>&emsp;w^1 = w<br>&emsp;a^5 = aaaaa<br>&emsp;a^n = aaa...a (o simbolo a repetido n vezes)<br>Se &Sigma; representa um alfabeto, entao:<br>&emsp;&Sigma;\* denota o conjunto de todas as palavras possiveis sobre &Sigma;<br>&emsp;&Sigma;+ denota &Sigma;\* - {&epsilon;}"
+
+learning object < 'def_todas_palavras > has
+	title "definicao 2.6 - Conjunto de todas as palavras"
+	text "Seja &Sigma; um alfabeto. Entao o conjunto de todas as palavras &Sigma;\* e indutivamente definido como segue:<br>a) Base de inducao.<br>&epsilon; &isin; &Sigma;\*, para qualquer x &isin; &Sigma;, vale x &isin; &Sigma;\*<br>b) Passo de inducao.<br>Se u e v sao palavras de &Sigma;\*, entao a concatenacao u v e uma palavra de &Sigma;\*<br>Portanto, uma definicao alternativa para palavra, cadeira de caracteres ou sentenca sobre um alfabeto &Sigma; e qualquer lemento w de &Sigma;\*, ou seja:<br>w &isin; &Sigma;\*"
+
+learning object < 'eg_todas_palavras > has
+	title "exemplo 2.7 - Conjunto de todas as palavras"
+	text "Se &Sigma; = {a, b}, entao:<br>&emsp;&Sigma;+ = {a, b, aa, ab, ba, bb, aaa, ...}<br>&emsp;&Sigma;* = {&epsilon;, a, b, aa, ab, ba, bb, aaa, ...}"
+
+learning object < 'def_compr > has
+	title "definicao 2.7 - Comprimento, tamanho de uma palavra"
+	text "O comprimento ou tamanho de uma palavra w, representado por |w|, e o numero de simbolos que compoem a palavra. Portanto, para um dado alfabeto &Sigma;, comprimento e uma funcao com dominio em &Sigma;\* e codominio em N."
+
+learning object < 'eg_compr > has
+	title "exemplo2.8 - Comprimento de uma palavra"
+	text "a)|abcb| = 4<br>b) |&epsilon;| = 0"
+
+learning object < 'def_lf > has
+	title "definicao 2.8 - Linguagem formal"
+	text "Uma linguagem formal ou simplesmente linguagem L sobre um alfabeto &Sigma;, e um conjunto de palavras sobre &Sigma;, ou seja:<br>L &sube; &Sigma;*"
+
+learning object < 'eg_lf > has
+	title "exemplo 2.9 - Linguagem formal"
+	text "a) O conjunto vazio &Oslash; e o conjunto formado pela palavra vazia {&epsilon;} sao linguagens sobre qualquer alfabeto. Obviamente, vale que:<br>&Oslash; &ne; {&epsilon;}<br>b) Os conjuntos &Sigma;* e &Sigma;+ sao linguagens sobre um alfabeto &Sigma; qualquer. Obviamente, vale que:<br>&Sigma;* &ne; &Sigma;+<br>c) Suponha o alfabeto &Sigma; = {a, b}. Entao, o conjunto de palindromos (palavras que tem a mesma leitura da esquerda para a direita e vice-versa) sobre &Sigma; e um exemplo de linguagem infinita. Assim, sao palavras desta linguagem:<br>&epsilon;, a, b, aa, bb, aaa, aba, bab, bbb, aaaa, ..."
+
+learning object < 'eg_todas_linguagens > has
+	title "exemplo 2.10 - Conjunto de todas as linguagens sobre um alfabeto"
+	text "O conjunto de todas as linguagens sobre um alfabeto &Sigma; e o conjunto das partes de &Sigma;*, ou seja:<br>2^&Sigma;*"
+
+learning object < 'eg_lf_lp > has
+	title "exemplo 2.11 - Linguagem formal: linguagem de programacao"
+	text "Uma linguagem de programacao como Pascal e formalmente definida pelo conjunto de todos os programas (palavras) da linguagem."
+
+learning object < 'intro_sec2.4 > has
+	title "Secao 2.4: Gramatica"
+	text "Ja foi dito que uma linguagem de programacao e formalmente definida pelo conjunto de todos os programas (palavras) da linguagem. Como, em geral, o conjunto de todos os programas de uma linguagem de propositos gerais como Pascal e infinito, nao e uma definicao adequada para ser implementada em um computador. Uma maneira de especificar de forma finita linguagens (eventualmente) infinitas e usando o formalismo gramatica.<br>Uma gramatica e, basicamente, um conjunto finito de regras as quais, quando aplicadas sucessivamente, geram palavras. O conjunto de todas as palavras geradas por uma gramatica define a linguagem. As gramaticas usadas para as linguagens naturais como portugues, sao as mesmas que as usadas para linguagens artificiais como Pascal. Eventualmente, gramaticas tambem sao usadas para definir semantica de linguagens. Entretanto, para tratar semantica, em geral, sao usados outros formalismos."
+
+learning object < 'def_gramatica > has
+	title "definicao 2.9 - Gramatica"
+	text "Uma gramatica de Chomsky, gramatica irrestrita ou simplesmente gramatica e uma quadrupla ordenada:<br>G = (V, T, P, S)<br>na qual:<br>a) V, um conjunto finito de simbolos variaveis ou nao terminais;<br>b)T, um conjunto finito de simbolos terminais disjunto de V;<br>c) P: (V &cup; T)+ -> (V &cup; T)\* e uma relacao finita (ou seja, P e um conjunto finito de pares), denominada de relacao de producoes ou simplesmente producoes. Cada par da relacao e denominado de regra de producao ou simplesmente de producao;<br>d) S, um elemento distinguido de V denominado simbolo inicial ou variavel inicial.<br><br>Uma regra de producao (&alpha;, &beta;) e representada como segue:<br>&alpha; -> &beta;<br>Por simplicidade, um grupo de regras de producao da forma:<br>&alpha; -> &beta;1 | &beta;2 | ... | &beta;n<br>As regras de producao definem as condicoes de geracao das palavras da linguagem. A aplicacao de uma regra de producao e denominada derivacao de uma palavra e e formalmente definida como um par de uma relacao. A aplicacao sucessiva de regras de producao (fecho transitivo da relacao de derivacao) permite derivar as palavras da linguagem representada pela gramatica."
+
+learning object < 'def_rel_derivacao > has
+	title "definicao 2.10 - Relacao de derivacao"
+	text "Seja G = (V, T, P, S) uma gramativa. Uma derivacao e um par da relacao de derivacao denotada por &rArr; com dominio em (V &cup; T)+ e codominio em (V &cup; T)\*. Um par <&alpha;, &beta;> da relacao de derivacao e representado de forma infixada como segue:<br>&alpha; &rArr; &beta;<br>A relacao de derivacao &rArr; e indutivamente definida como segue:<br>a) Para toda producao da forma S -> &beta; (S e o simbolo inicial de G), o seguinte par pertence a relacao de derivacao:<br>S &rArr; &beta;<br>b) Para todo par &eta; &rArr; &rho; &alpha; &sigma; da relacao de derivacao, se &alpha; -> &beta; e regra de P, entao o seguinte par tambem pertence a relacao de derivacao:<br>&eta; &rArr; &rho; &beta; &sigma;<br>Portanto, uma derivacao e a substituicao de uma subpalavra de acordo com uma regra de producao.<br>Sucessivos passos de derivacao sao definidos como segue:<br>&rArr;\* fecho transitivo e reflexivo da relacao &rArr;, ou seja, zero ou mais passos de derivacoes sucessivos;<br>&rArr;+ fecho transitivo da relacao &rArr;, ou seja, um ou mais passos de derivacoes sucessivos;<br>&rArr;i exatos i passos de derivacoes sucessivos, sendo i um numero natural.<br><br>Gramaticas sao consideradas formalismos de geracao, pois permitem derivar (\"gerar\") todas as palavras da linguagem que representam."
+
+learning object < 'def_linguagem_gerada > has
+	title "definicao 2.11 - Linguagem gerada"
+	text "Seja G = (V, T, P, S) uma gramatica. A linguagem gerada pela gramatica G, denotada por L(G) ou GERA(G), e composta por todas as palavras de simbolos terminais derivaveis a partir do simbolo inicial S, ou seja:<br>L(G) = {w &isin; T\* | S &rArr;+ w}"
+
+learning object < 'eg_lg_numeros_naturais > has
+	title "exemplo 2.12 - Gramatica, derivacao, linguagem gerada: numeros naturais"
+	text "Suponha que se deseja definir uma gramatica capaz de gerar qualquer numero natural valido em uma linguagem de programacao. Assim, a gramatica G = (V, T, P, N) na qual:<br>V = {N, D}<br>T = {0, 1, 2, ..., 9}<br>P = {N -> D, N -> DN, D -> 0 | 1 | ... | 9}<br>gera, sintaticamente, o conjunto dos numeros naturais. Note-se que se distinguem os zeros a esquerda. Por exemplo, distingue-se 123 de 0123 (sugere-se como exercicio o desenvolvimento de uma gramatica a qual nao distingue zeros a esquerda). Como ilustracao, uma derivacao do numero 243 e como segue (na coluna a direita, e apresentada a regra usada em cada passo de derivacao):<br>&emsp;N &rArr; N -> DN<br>&emsp;DN &rArr; D -> 2<br>&emsp;2N &rArr; N -> DN<br>&emsp;2DN &rArr; D -> 4<br>&emsp;24N &rArr; N -> D<br>&emsp;24D &rArr; D-> 3<br>&emsp;243<br>Existe mais alguma derivacao do numero 243? Portanto, pode-se indicar que:<br>&emsp;S &rArr;* 243<br>&emsp;S &rArr;+ 243<br>&emsp;S &rArr;6 243<br>Observe que, no exemplo acima, a seguinte interpretacao indutiva pode ser dada a gramatica em questao:<br>&emsp;\* Base de inducao: todo digito e um numero natural;<br>&emsp;\* Passo de inducao: se n e um numero natural, entao a concatenacao de n com qualquer digito e um numero natural."
+
+learning object < 'eg_lg_palavra_duplicada > has
+	title "exemplo 2.13 - Gramatica, derivacao, linguagem gerada: palavra duplicada"
+	text "O exemplo que segue pode parecer relativamente completo para um seguindo exemplo de gramatica. O objetivo e apenas apresentar algumas das potencialidades que serao exploradas ao longo de todo o livro. De fato, nos capitulos subsequentes, sao mostrados, em niveis crescentes de dificuldade, muitos outros exemplos de gramaticas. Neste ponto, alguma dificuldade de entendimento, ou de resolucao dos exercicios propostos, e normal.<br><br>A seguinte gramatica:<br>G = ({S, X, Y, A, B, F}, {a, b}, P, S)<br>na qual:<br>P = {S -> XY, X -> XaA | XbB | F, Aa -> aA, Ab -> bA, AY -> Ya, Ba -> aB, Bb -> bB, BY -> Yb, Fa -> aF, Fb -> bF, FY -> &epsilon;}<br>gera a linguagem cujas palavras sao tais que a primeira metade e igual a segunda metade:<br>{ww | w e palavra de {a, b}*}<br>Como ilustracao, uma derivacao da palavra baba e como segue (na coluna a direita, e apresentada a regra usada em cada passo de derivacao):<br>&emsp;S &rArr; S -> XY<br>&emsp;XY &rArr; X -> XaA<br>&emsp;XaAY &rArr; AY -> Ya<br>&emsp;XaYa &rArr; X -> XbB<br>&emsp;XbBaYa &rArr; Ba -> aB<br>&emsp;XbaBya &rArr; BY -> Yb<br>&emsp;XbaYba &rArr; X -> F<br>&emsp;FbaYba &rArr; Fb -> bF<br>&emsp;bFaYba &rArr; Fa -> aF<br>&emsp;baFYba &rArr; FY -> &epsilon;<br>&emsp;baba<br>Existe mais alguma derivacao da palavra baba? A gramatica apresentada gera o primeiro w apos X e o segundo w apos Y, como segue:<br>&emsp;\* a cada simbolo terminal gerado apos X, e gerada uma variavel correspondente;<br>&emsp;\* esta variavel \"caminha\" na palavra ate passar por Y, quando deriva o correspondente terminal;<br>&emsp;\* para encerrar, X deriva a variavel F, a qual \"caminha\" ate encontrar Y, quando FY deriva a palavra vazia. Lembre-se: &epsilon; e o elemento neutro da concatenacao e, portanto, ba&epsilon;ba = baba."
+
+learning object < 'def_gramaticas_equivalentes > has
+	title "definicao 2.12 - Gramaticas equivalentes"
+	text "Duas gramaticas G1 e G2 sao ditas gramaticas equivalentes se e somente:<br>GERA(G1) = GERA(G2)<br><br>No texto que segue, frequentemente sao usadas as seguintes convencoes:<br>&emsp;\* A, B, C, ..., S, T para simbolos variaveis;<br>&emsp;\* a, b, c, ..., s, t para simbolos terminais;<br>&emsp;\*u, v, w, x, y, z para palavras de simbolos terminais;<br>&emsp;\* &alpha;, &beta;, ... para palavras de simbolos variaveis ou terminais."
+
+learning object < 'ex_2.1 > has
+	title "exercicio 2.1"
+	text "Marque os conjuntos que sao alfabetos:<br>a) Conjunto dos numeros inteiros [ ]<br>b) Conjunto dos numeros primos [ ]<br>c) Conjunto das letras do alfabeto brasileiro [ ]<br>d) Conjunto dos algarismos arabicos [ ]<br>e) Conjunto dos algarismos romanos [ ]<br>f) Conjunto {a, b, c, d} [ ]<br>g) Conjunto das partes de {a, b, c} [ ]<br>g) Conjunto das partes de {a, b, c} [ ]<br>h) Conjunto de vogais [ ]<br>i) Conjunto das letras gregas [ ]"
+
+learning object < 'ex_2.2 > has
+	title "exercicio 2.2"
+	text "Apresente os possiveis prefixos e sufixos de cada uma das seguintes palavras:<br>a) teoria<br>b)universidade<br>c)aaa<br>d)abccba<br>e) abcabc"
+
+learning object < 'ex_2.3 > has
+	title "exercicio 2.3"
+	text "Exemplifique, comprovando ou negando as seguintes propriedades algebricas da operacao de concatenacao de palavras:<br>a) Total (suponha a operacao definida sobre uma determinada linguagem);<br>b) Comutativa;<br>c) Elemento neutro;<br>d) Associativa;<br>e) Elemento absorvente, genericamente definida como segue: para uma dada operacao binaria &oplus; sobre um conjunto A, afirma-se que a operacao possui elemento absorvente se existe a &isin; A tal que, para qualquer x &isin; A vale que:<br>a &oplus; x = x &oplus; a = a<br>f) Elemento inverso, genericamente definido como segue: para uma dada operacao binaria &oplus; sobre um conjunto A, afirma-se que a operacao &oplus; possui elemento inverso se possui elemento neutro e e, para qualquer a &isin; A, existe <u>a</u> &isin; A tal que:<br>a &oplus; <u>a</u> = <u>a</u> &oplus; a = e"
+
+learning object < 'ex_2.4 > has
+	title "exercicio 2.4"
+	text "Sejam as linguagens L1, L2 e L3. Verifique se e verdadeira a igualdade:<br>L1 (L2 &cap; L3) = L1 L2 &cap; L1 L3"
+
+learning object < 'ex_2.5 > has
+	title "exercicio 2.5"
+	text "Relativamente ao exemplo 2.12 - Gramatica, derivacao, linguagem gerada: numeros naturais:<br>a) Existe mais alguma derivacao do numero 243? Caso exista, quantas?<br>b) Modifique a gramatica de tal forma a nao distinguir zeros a esquerda."
+
+learning object < 'ex_2.6 > has
+	title "exercicio 2.6"
+	text "Considere o exemplo 2.13 - Gramatica, derivacao, linguagem gerada: palavra duplicada. Existe mais alguma derivacao da palavra baba?"
+
+learning object < 'ex_2.7 > has
+	title "exercicio 2.7"
+	text "Desenvolva uma gramatica que gere a linguagem correspondente aos identificadores da linguagem Pascal (palavras formadas por uma ou mais letras ou digitos, as quais sempre iniciam por uma letra). Analogamente para os identificadores em Pascal com tamanho maximo de seis caracteres."
+
+learning object < 'ex_2.8 > has
+	title "exercicio 2.8"
+	text "Desenvolva uma gramatica que gere expressoes aritmeticas com parenteses balanceados, dois operadores (representados por \* e +) e um operando (representado por x). Por exemplo, as seguintes palavras sao expressoes aritmeticas validas:<br>x&emsp;x*(x+x)&emsp;(((((x)))))"
+
+learning object < 'ex_2.9 > has
+	title "exercicio 2.9"
+	text "Desenvolva uma gramatica que gere a seguinte linguagem:<br>{a^n b^n c^n | n>=0}"
